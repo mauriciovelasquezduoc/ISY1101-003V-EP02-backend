@@ -274,7 +274,7 @@ jobs:
           CMD_ID=$(aws ssm send-command \
             --instance-ids "${{ steps.get-instance.outputs.instance_id }}" \
             --document-name "AWS-RunShellScript" \
-            --parameters '{"commands":["/home/ec2-user/deploy-app.sh"]}' \
+            --parameters '{"commands":["sudo -u ec2-user /home/ec2-user/deploy-app.sh"]}' \
             --comment "Deploy backend ${{ needs.versioning.outputs.new_tag }}" \
             --timeout-seconds 300 \
             --query "Command.CommandId" \
