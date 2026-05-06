@@ -1,0 +1,35 @@
+# docker-compose standalone del backend (solo para desarrollo sin frontend)
+# Para el stack completo usa: ../docker-compose.yml
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: alumnos-db
+    environment:
+      POSTGRES_DB:       alumnos
+      POSTGRES_USER:     alumnos_user
+      POSTGRES_PASSWORD: alumnos_pass
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alumnos_user -d alumnos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: alumnos-backend:latest
+    container_name: alumnos-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE:     dev
+      SPRING_DATASOURCE_URL:      jdbc:postgresql://db:5432/alumnos
+      SPRING_DATASOURCE_USERNAME: alumnos_user
+      SPRING_DATASOURCE_PASSWORD: alumnos_pass
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
